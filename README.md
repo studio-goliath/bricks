@@ -50,7 +50,7 @@ return array_merge($scripts,
 
 ACF declarations :
 
-Js files have to be registered in bricks_image_add_templates function located in bricks-{{ thematic_name }}-templates/bricks-{{ thematic_name }}-templates.php
+ACF declarations have to be registered in bricks_image_add_templates function located in bricks-{{ thematic_name }}-templates/bricks-{{ thematic_name }}-templates.php
 
 <pre><code>
 return array_merge($layouts,
