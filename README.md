@@ -1,13 +1,11 @@
-Bricks
-==
+<h1>Bricks</h1>
 
 Bricks plugin provide the main functions to display brick templates provided by any other thematic bricks plugins (bricks-basic-templates, bricks-image-templates)
 Therefore this plugin does not do anything without at least one thematic bricks plugin activated.
 
 A thematic bricks plugin provides a bundle of brick templates.
 
-How to create a new brick (related to its thematic)
--
+<h2>How to create a new brick (related to its thematic)</h2>
 
 A brick should contain :
 
@@ -96,8 +94,7 @@ return array_merge($layouts,
     );
 </code></pre>
 
-Add the brick to brick_template filter
--
+<h2>Add the brick to brick_template filter</h2>
 
 bricks_display_image_template function will take care of displaying the template in pages, posts or custom post type.
 Therefore it is a must to add a filter for every brick with the bricks_display_image_template function.
