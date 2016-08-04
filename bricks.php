@@ -12,7 +12,7 @@ function bricks_init()
     if( function_exists('acf_add_local_field_group') ):
 
         $layouts = array();
-    // TODO : FILTRER CA
+        $layouts = apply_filters( 'layouts_filter', $layouts );
 
         $field_group = array (
             'key' => 'group_575ad2a97bae8',
@@ -34,7 +34,7 @@ function bricks_init()
                     'button_label' => 'Add Row',
                     'min' => '',
                     'max' => '',
-                    'layouts' => apply_filters( 'layouts_filter', $layouts )
+                    'layouts' => $layouts
                 ),
             ),
             'location' => array (
