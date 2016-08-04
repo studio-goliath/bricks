@@ -7,60 +7,71 @@
  * Author URI: http://www.studio-goliath.com/
  */
 
-if( function_exists('acf_add_local_field_group') ):
+function bricks_init()
+{
+    if( function_exists('acf_add_local_field_group') ):
 
-    $layouts = array();
+        $layouts = array();
+    // TODO : FILTRER CA
 
-    acf_add_local_field_group(array (
-        'key' => 'group_575ad2a97bae8',
-        'title' => 'Bricks',
-        'fields' => array (
-            array (
-                'key' => 'field_575ad2e20ae06',
-                'label' => 'Brick',
-                'name' => 'brick',
-                'type' => 'flexible_content',
-                'instructions' => '',
-                'required' => 0,
-                'conditional_logic' => 0,
-                'wrapper' => array (
-                    'width' => '',
-                    'class' => '',
-                    'id' => '',
-                ),
-                'button_label' => 'Add Row',
-                'min' => '',
-                'max' => '',
-                'layouts' => apply_filters( 'layouts_filter', $layouts )
-            ),
-        ),
-        'location' => array (
-            array (
+        $field_group = array (
+            'key' => 'group_575ad2a97bae8',
+            'title' => 'Bricks',
+            'fields' => array (
                 array (
-                    'param' => 'post_type',
-                    'operator' => '==',
-                    'value' => 'post',
+                    'key' => 'field_575ad2e20ae06',
+                    'label' => 'Brick',
+                    'name' => 'brick',
+                    'type' => 'flexible_content',
+                    'instructions' => '',
+                    'required' => 0,
+                    'conditional_logic' => 0,
+                    'wrapper' => array (
+                        'width' => '',
+                        'class' => '',
+                        'id' => '',
+                    ),
+                    'button_label' => 'Add Row',
+                    'min' => '',
+                    'max' => '',
+                    'layouts' => apply_filters( 'layouts_filter', $layouts )
                 ),
             ),
-            array (
+            'location' => array (
                 array (
-                    'param' => 'post_type',
-                    'operator' => '==',
-                    'value' => 'page',
+                    array (
+                        'param' => 'post_type',
+                        'operator' => '==',
+                        'value' => 'post',
+                    ),
+                ),
+                array (
+                    array (
+                        'param' => 'post_type',
+                        'operator' => '==',
+                        'value' => 'page',
+                    ),
                 ),
             ),
-        ),
-        'menu_order' => 0,
-        'position' => 'normal',
-        'style' => 'default',
-        'label_placement' => 'top',
-        'instruction_placement' => 'label',
-        'hide_on_screen' => '',
-        'active' => 1,
-        'description' => '',
-    ));
+            'menu_order' => 0,
+            'position' => 'normal',
+            'style' => 'default',
+            'label_placement' => 'top',
+            'instruction_placement' => 'label',
+            'hide_on_screen' => '',
+            'active' => 1,
+            'description' => '',
+        );
 
-endif;
+        $field_group = apply_filters('goliath-bricks-add-local-field-group', $field_group, $layouts);
+
+        if ($field_group) {
+            acf_add_local_field_group($field_group);
+        }
+
+    endif;
+}
+add_action('init', 'bricks_init');
 
 /**
  * Display each brick
