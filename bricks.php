@@ -7,10 +7,135 @@
  * Author URI: http://www.studio-goliath.com/
  */
 
+add_action('init', 'bricks_init', 100);
+add_action('goliath-bricks-action-local-field-group', 'bricks_add_default_local_field_group');
+add_filter('the_content', 'bricks_display_parts');
+add_action('wp_enqueue_scripts', 'bricks_register_scripts');
+
 function bricks_init()
 {
-    if( function_exists('acf_add_local_field_group') ):
+    do_action('goliath-bricks-action-local-field-group');
+}
 
+/**
+ * Display each brick
+ *
+ * @param $content
+ * @return string
+ */
+function bricks_display_parts( $content )
+{
+    $parts = '';
+
+    if ( function_exists('have_rows') ) {
+        if ( have_rows('brick') ) {
+            while ( have_rows('brick') ) {
+
+                the_row();
+
+                $layout = get_row_layout();
+
+                // Get template part
+
+                $parts .= apply_filters( "brick_template_$layout", '', $layout );
+
+                // Scripts
+
+                $scripts = array(
+                    'css' => apply_filters( 'bricks_styles_filter', array() ),
+                    'js' => apply_filters( 'bricks_scripts_filter', array() )
+                );
+
+                // Enqueue related brick css
+
+                foreach ($scripts['css'] as $key => $styles) {
+                    if ($key === $layout) {
+                        foreach ($styles as $key => $path) {
+                            if (!wp_style_is($key, $list = 'enqueued')) {
+                                wp_enqueue_style($key);
+                            }
+                        }
+                    }
+                }
+
+                // Enqueue related brick js
+
+                foreach($scripts['js'] as $key => $scripts) {
+                    if ($key === $layout) {
+                        foreach ($scripts as $key => $path) {
+                            if (!wp_script_is($key, $list = 'enqueued')) {
+                                wp_enqueue_script($key);
+                            }
+                        }
+                    }
+                }
+
+            }
+        }
+    }
+
+    return $content.$parts;
+
+}
+
+/**
+ * Get template part.
+ *
+ * @param string $plugin
+ * @param string $slug
+ * @return string
+ */
+function bricks_get_template_part( $plugin, $slug )
+{
+    $template = '';
+
+    // Look in yourtheme/bricks/plugin/slug.php then plugin/parts/row-slug.php
+    $template = locate_template( "/bricks/{$plugin}/row-{$slug}.php", false );
+
+    // If template is not overridden check in plugin/parts/row-slug.php
+    if ( !$template && is_file( WP_PLUGIN_DIR . "/{$plugin}/parts/row-{$slug}.php" ) ) {
+        $template = WP_PLUGIN_DIR . "/{$plugin}/parts/row-{$slug}.php";
+    }
+
+    return $template;
+
+}
+
+/**
+ * Register all the template scripts
+ */
+function bricks_register_scripts()
+{
+
+    $scripts = array(
+        'css' => apply_filters( 'bricks_styles_filter', array() ),
+        'js' => apply_filters( 'bricks_scripts_filter', array() )
+    );
+
+    // Css
+
+    foreach($scripts['css'] as $key => $styles) {
+        foreach ($styles as $key => $path) {
+            wp_register_style($key, $path);
+        }
+    }
+
+    // Js
+
+    foreach($scripts['js'] as $key => $scripts) {
+        foreach ($scripts as $key => $path) {
+            wp_register_script($key, $path);
+        }
+    }
+
+}
+
+/**
+ * Adds default field group
+ */
+function bricks_add_default_local_field_group()
+{
+    if( function_exists('acf_add_local_field_group') ) {
         $layouts = array();
         $layouts = apply_filters( 'layouts_filter', $layouts );
 
@@ -68,121 +193,5 @@ function bricks_init()
         if ($field_group) {
             acf_add_local_field_group($field_group);
         }
-
-    endif;
-}
-add_action('init', 'bricks_init');
-
-/**
- * Display each brick
- *
- * @param $content
- * @return string
- */
-function bricks_display_parts( $content ) {
-
-    $parts = '';
-
-    if ( function_exists('have_rows') ) {
-        if ( have_rows('brick') ) {
-            while ( have_rows('brick') ) {
-
-                the_row();
-
-                $layout = get_row_layout();
-
-                // Get template part
-
-                $parts .= apply_filters( "brick_template_$layout", '', $layout );
-
-                // Scripts
-
-                $scripts = array(
-                    'css' => apply_filters( 'bricks_styles_filter', array() ),
-                    'js' => apply_filters( 'bricks_scripts_filter', array() )
-                );
-
-                // Enqueue related brick css
-
-                foreach ($scripts['css'] as $key => $styles) {
-                    if ($key === $layout) {
-                        foreach ($styles as $key => $path) {
-                            if (!wp_style_is($key, $list = 'enqueued')) {
-                                wp_enqueue_style($key);
-                            }
-                        }
-                    }
-                }
-
-                // Enqueue related brick js
-
-                foreach($scripts['js'] as $key => $scripts) {
-                    if ($key === $layout) {
-                        foreach ($scripts as $key => $path) {
-                            if (!wp_script_is($key, $list = 'enqueued')) {
-                                wp_enqueue_script($key);
-                            }
-                        }
-                    }
-                }
-
-            }
-        }
     }
-
-    return $content.$parts;
-
 }
-add_filter( 'the_content', 'bricks_display_parts' );
-
-/**
- * Get template part.
- *
- * @param string $plugin
- * @param string $slug
- * @return string
- */
-function bricks_get_template_part( $plugin, $slug ) {
-
-    $template = '';
-
-    // Look in yourtheme/bricks/plugin/slug.php then plugin/parts/row-slug.php
-    $template = locate_template( "/bricks/{$plugin}/row-{$slug}.php", false );
-
-    // If template is not overridden check in plugin/parts/row-slug.php
-    if ( !$template && is_file( WP_PLUGIN_DIR . "/{$plugin}/parts/row-{$slug}.php" ) ) {
-        $template = WP_PLUGIN_DIR . "/{$plugin}/parts/row-{$slug}.php";
-    }
-
-    return $template;
-
-}
-
-/**
- * Register all the template scripts
- */
-function bricks_register_scripts() {
-
-    $scripts = array(
-        'css' => apply_filters( 'bricks_styles_filter', array() ),
-        'js' => apply_filters( 'bricks_scripts_filter', array() )
-    );
-
-    // Css
-
-    foreach($scripts['css'] as $key => $styles) {
-        foreach ($styles as $key => $path) {
-            wp_register_style($key, $path);
-        }
-    }
-
-    // Js
-
-    foreach($scripts['js'] as $key => $scripts) {
-        foreach ($scripts as $key => $path) {
-            wp_register_script($key, $path);
-        }
-    }
-
-}
-add_action('wp_enqueue_scripts', 'bricks_register_scripts');
